@@ -1,19 +1,13 @@
 from colorfield.fields import ColorField
-from django.contrib.auth import get_user_model
 from django.db import models
-
-User = get_user_model()
+from users.models import User
 
 
 class Ingredient(models.Model):
     name = models.CharField(
         max_length=256,
-        verbose_name='Название ингредиент',
+        verbose_name='Название ингредиента',
         help_text='Введите название ингредиента',
-    )
-    amount = models.PositiveIntegerField(
-        verbose_name='Количество',
-        help_text='Укажите количество',
     )
     measurement_unit = models.CharField(
         max_length=100,
@@ -22,7 +16,7 @@ class Ingredient(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Ингредиент',
+        verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
 
     def __str__(self) -> str:
@@ -30,9 +24,11 @@ class Ingredient(models.Model):
 
 
 class Tag(models.Model):
-    title = models.CharField(
+    name = models.CharField(
         max_length=100,
         unique=True,
+        verbose_name='Название тэга',
+        help_text='Укажите название тэга',
     )
     color = ColorField(
         unique=True,
@@ -47,11 +43,11 @@ class Tag(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Тэг',
-        verbose_name_plural = 'Тэги',
+        verbose_name = 'Тэг'
+        verbose_name_plural = 'Тэги'
 
     def __str__(self) -> str:
-        return self.title
+        return self.name
 
 
 class Recipe(models.Model):
@@ -61,10 +57,10 @@ class Recipe(models.Model):
         verbose_name='Автор',
         help_text='Укажите автора',
     )
-    title = models.CharField(
+    name = models.CharField(
         max_length=256,
-        verbose_name='Название',
-        help_text='Введите название',
+        verbose_name='Название рецепта',
+        help_text='Введите название рецепта',
     )
     image = models.ImageField(
         'Изображение',
@@ -72,24 +68,25 @@ class Recipe(models.Model):
         blank=True,
     )
     text = models.CharField(
+        max_length=1024,
         verbose_name='Текст',
         help_text='Введите текст',
     )
     ingredients = models.ManyToManyField(
         Ingredient,
         db_index=True,
-        # on_delete=models.SET_NULL,
+        through='IngredientRecipe',
         verbose_name='Ингредиенты',
         help_text='Укажите ингредиенты',
     )
     tags = models.ManyToManyField(
         Tag,
         db_index=True,
-        # on_delete=models.SET_NULL,
+        through='TagRecipe',
         verbose_name='Тэг',
         help_text='Укажите тэги',
     )
-    cooking_time = models.PositiveIntegerField(
+    cooking_time = models.SmallIntegerField(
         verbose_name='Время приготовления',
         help_text='Укажите время приготовления',
     )
@@ -100,3 +97,23 @@ class Recipe(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+
+class IngredientRecipe(models.Model):
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    amount = models.PositiveIntegerField(
+        verbose_name='Количество',
+        help_text='Укажите количество',
+    )
+
+    def __str__(self) -> str:
+        return f'{self.ingredient} for {self.recipe}'
+
+
+class TagRecipe(models.Model):
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return f'{self.tag} for {self.recipe}'

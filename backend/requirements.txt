@@ -7,3 +7,5 @@ psycopg-binary==3.0.10
 djangorestframework-simplejwt==5.1.0
 django-colorfield==0.6.3
 psycopg2==2.9.3
+djoser==2.1.0
+webcolors=1.11.1

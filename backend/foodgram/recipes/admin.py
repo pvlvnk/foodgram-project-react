@@ -4,24 +4,21 @@ from recipes.models import Ingredient, Recipe, Tag
 
 
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = (
-        'pk',
-        'name',
-        'amount',
-        'measurement_unit'
-    )
-    search_fields = ('name',)
+    list_display = ('name', 'measurement_unit',)
     list_filter = ('name',)
-    list_editable = ('name',)
-    empty_value_display = '-пусто-'
+    empty_value_display = '-empty-'
 
 
 class TagAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name', 'color', 'slug',)
+    search_fields = ('name',)
+    empty_value_display = '-empty-'
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('author', 'name',)
+    list_filter = ('author', 'name', 'tags',)
+    empty_value_display = '-empty-'
 
 
 admin.site.register(Ingredient, IngredientAdmin)
