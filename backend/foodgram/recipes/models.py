@@ -96,7 +96,7 @@ class Recipe(models.Model):
         verbose_name_plural = 'Рецепты'
 
     def __str__(self) -> str:
-        return self.title
+        return self.name
 
 
 class IngredientRecipe(models.Model):
@@ -114,6 +114,10 @@ class IngredientRecipe(models.Model):
 class TagRecipe(models.Model):
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Рецепты с тегами'
+        verbose_name_plural = 'Рецепты с тегами'
 
     def __str__(self) -> str:
         return f'{self.tag} for {self.recipe}'
