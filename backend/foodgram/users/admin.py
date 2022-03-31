@@ -5,10 +5,9 @@ from users.models import User
 
 
 class UserAdmin(UserAdmin):
-    list_display = ('email', 'first_name', 'last_name', 'username', 'password')
+    list_display = ('email', 'first_name', 'last_name', 'username')
     search_fields = ('username',)
     list_filter = ('first_name', 'email',)
-    # list_editable = ('password',)
     empty_value_display = '-empty-'
 
 

@@ -27,8 +27,8 @@ class Tag(models.Model):
     name = models.CharField(
         max_length=100,
         unique=True,
-        verbose_name='Название тэга',
-        help_text='Укажите название тэга',
+        verbose_name='Название тега',
+        help_text='Укажите название тега',
     )
     color = ColorField(
         unique=True,
@@ -43,8 +43,8 @@ class Tag(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Тэг'
-        verbose_name_plural = 'Тэги'
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
 
     def __str__(self) -> str:
         return self.name
@@ -83,8 +83,8 @@ class Recipe(models.Model):
         Tag,
         db_index=True,
         through='TagRecipe',
-        verbose_name='Тэг',
-        help_text='Укажите тэги',
+        verbose_name='Тег',
+        help_text='Укажите теги',
     )
     cooking_time = models.SmallIntegerField(
         verbose_name='Время приготовления',
