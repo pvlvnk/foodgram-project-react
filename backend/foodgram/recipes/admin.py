@@ -1,5 +1,6 @@
-from backend.foodgram.recipes.models import Ingredient, Recipe, Tag
 from django.contrib import admin
+
+from recipes.models import Ingredient, Recipe, Tag
 
 
 class IngredientAdmin(admin.ModelAdmin):

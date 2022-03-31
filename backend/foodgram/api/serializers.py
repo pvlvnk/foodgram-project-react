@@ -1,7 +1,5 @@
-from backend.foodgram.recipes.models import (Ingredient, IngredientRecipe,
-                                             Recipe, Tag)
-
 from drf_extra_fields.fields import Base64ImageField
+from recipes.models import Ingredient, IngredientRecipe, Recipe, Tag
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 

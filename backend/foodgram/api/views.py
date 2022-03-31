@@ -1,7 +1,8 @@
-from backend.foodgram.api.serializers import (IngredientSerializer,
-                                              RecipeSerializer, TagSerialier)
-from backend.foodgram.recipes.models import Ingredient, Recipe, Tag
+from recipes.models import Ingredient, Recipe, Tag
 from rest_framework import viewsets
+
+from api.serializers import (IngredientSerializer, RecipeSerializer,
+                             TagSerialier)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):

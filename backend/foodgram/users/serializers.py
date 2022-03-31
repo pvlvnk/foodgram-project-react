@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
-from backend.foodgram.users.models import Follow
+
+from users.models import Follow
 
 
 class FollowSerializer(ModelSerializer):

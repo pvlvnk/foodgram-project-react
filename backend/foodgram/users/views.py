@@ -1,6 +1,7 @@
-from backend.foodgram.users.models import Follow
 from rest_framework import viewsets
-from backend.foodgram.users.serializers import FollowSerializer
+
+from users.models import Follow
+from users.serializers import FollowSerializer
 
 
 class FollowViewSet(viewsets.ModelViewSet):
