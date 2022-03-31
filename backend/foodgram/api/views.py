@@ -1,21 +1,17 @@
-from recipes.models import Ingredient, Recipe, Tag
+from backend.foodgram.api.serializers import (IngredientSerializer,
+                                              RecipeSerializer, TagSerialier)
+from backend.foodgram.recipes.models import Ingredient, Recipe, Tag
 from rest_framework import viewsets
 
-from api.serializers import (IngredientSerializer, RecipeSerializer,
-                             TagSerialier)
-from api.permissions import ReadOnly
 
-
-class IngredientViewSet(viewsets.ModelViewSet):
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    permission_classes = (ReadOnly,)
 
 
-class TagViewSet(viewsets.ModelViewSet):
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerialier
-    permission_classes = (ReadOnly,)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):

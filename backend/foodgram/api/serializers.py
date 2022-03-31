@@ -1,7 +1,9 @@
-from urllib import request
-from rest_framework.serializers import ModelSerializer
-from recipes.models import Ingredient, Tag, Recipe, IngredientRecipe
+from backend.foodgram.recipes.models import (Ingredient, IngredientRecipe,
+                                             Recipe, Tag)
+
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer
 
 
 class IngredientSerializer(ModelSerializer):
@@ -17,9 +19,10 @@ class TagSerialier(ModelSerializer):
 
 
 class RecipeSerializer(ModelSerializer):
-    author = serializers.StringRelatedField
+    author = serializers.StringRelatedField()
     tags = TagSerialier(many=True, required=True)
     ingredients = IngredientSerializer(many=True, required=True)
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
@@ -29,8 +32,9 @@ class RecipeSerializer(ModelSerializer):
 
     def create(self, validated_data):
         tags = validated_data.pop('tags')
+        image = validated_data.pop('image')
         ingredients = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(author=request.user, **validated_data)
+        recipe = Recipe.objects.create(image=image, **validated_data)
         recipe.tags.set(tags)
         for ingredient in ingredients:
             amount = ingredient.get('amount')
@@ -42,3 +46,9 @@ class RecipeSerializer(ModelSerializer):
             )
         recipe.save()
         return recipe
+
+
+class IngredientRecipeSerializer(ModelSerializer):
+    class Meta:
+        model = IngredientRecipe
+        fields = ('id', 'name', 'amount', 'measurement_unit',)
