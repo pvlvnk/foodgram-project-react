@@ -1,9 +1,11 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
+# from users.views import FollowViewSet
+
 app_name = 'api'
 router = DefaultRouter()
-
+# router.register(r'api/users/subscriptions', FollowViewSet, basename='follow')
 
 urlpatterns = [
     path('', include(router.urls)),

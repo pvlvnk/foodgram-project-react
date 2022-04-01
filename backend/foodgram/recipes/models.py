@@ -58,7 +58,7 @@ class Recipe(models.Model):
         help_text='Укажите автора',
     )
     name = models.CharField(
-        max_length=256,
+        max_length=200,
         verbose_name='Название рецепта',
         help_text='Введите название рецепта',
     )
@@ -108,7 +108,7 @@ class IngredientRecipe(models.Model):
     )
 
     def __str__(self) -> str:
-        return f'{self.ingredient} for {self.recipe}'
+        return f'{self.ingredient} для {self.recipe}'
 
 
 class TagRecipe(models.Model):
@@ -120,7 +120,7 @@ class TagRecipe(models.Model):
         verbose_name_plural = 'Рецепты с тегами'
 
     def __str__(self) -> str:
-        return f'{self.tag} for {self.recipe}'
+        return f'{self.tag} для {self.recipe}'
 
 
 class Favorite(models.Model):
