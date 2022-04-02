@@ -23,6 +23,14 @@ class IngredientRecipeSerializer(ModelSerializer):
         fields = ('id', 'name', 'measurement_unit', 'amount',)
 
 
+class WriteIngredientRecipeSerializer(ModelSerializer):
+    id = serializers.IntegerField(source='ingredient.id')
+
+    class Meta:
+        model = IngredientRecipe
+        fields = ('id', 'amount')
+
+
 class TagSerializer(ModelSerializer):
     class Meta:
         model = Tag
@@ -61,8 +69,9 @@ class ReadRecipeSerializer(ModelSerializer):
 
 
 class WriteRecipeSerializer(ModelSerializer):
-    ingredients = IngredientRecipeSerializer(
+    ingredients = WriteIngredientRecipeSerializer(
         many=True,
+        source='ingredientrecipe_set',
     )
     tags = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Tag.objects.all())
@@ -75,15 +84,14 @@ class WriteRecipeSerializer(ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get('request')
-        print(validated_data)
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
+        ingredients = validated_data.pop('ingredientrecipe_set')
         recipe = Recipe.objects.create(author=request.user, **validated_data)
         recipe.tags.set(tags)
         for ingredient in ingredients:
             amount = ingredient.get('amount')
             base_ingredient = get_object_or_404(
-                Ingredient, pk=ingredient.get('id'))
+                Ingredient, pk=ingredient.get('ingredient').get('id'))
             IngredientRecipe.objects.create(
                 recipe=recipe, ingredient=base_ingredient, amount=amount)
         return recipe
