@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
-                            Tag)
+from recipes.models import Favorite, Ingredient, IngredientRecipe, Recipe, Tag
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from users.serializers import UserSerializer
@@ -14,8 +13,10 @@ class IngredientSerializer(ModelSerializer):
 
 
 class IngredientRecipeSerializer(ModelSerializer):
-    name = serializers.ReadOnlyField()
-    measurement_unit = serializers.ReadOnlyField()
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit')
+    id = serializers.ReadOnlyField(source='ingredient.id')
 
     class Meta:
         model = IngredientRecipe
@@ -34,6 +35,7 @@ class ReadRecipeSerializer(ModelSerializer):
     ingredients = IngredientRecipeSerializer(
         many=True,
         source='ingredientrecipe_set',
+        read_only=True
     )
     image = Base64ImageField()
     is_favorited = serializers.SerializerMethodField()
@@ -73,6 +75,7 @@ class WriteRecipeSerializer(ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get('request')
+        print(validated_data)
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(author=request.user, **validated_data)

@@ -29,7 +29,7 @@ class TagAdmin(admin.ModelAdmin):
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('author', 'name',)
+    list_display = ('pk', 'author', 'name',)
     list_filter = ('author', 'name', 'tags',)
     empty_value_display = '-empty-'
     filter_vertical = ('tags',)
