@@ -9,6 +9,7 @@ from users.serializers import RecipesBriefSerializer
 
 from api.filters import RecipeFilter
 from api.paginations import CustomPagination
+from api.permissions import AuthorOrReadOnly
 from api.serializers import (CartSerializer, FavoriteSerializer,
                              IngredientSerializer, ReadRecipeSerializer,
                              TagSerializer, WriteRecipeSerializer)
@@ -18,8 +19,9 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     """Возвращает список всех ингредиентов или конкретный ингредиент."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
     search_fields = ('^name',)
+    pagination_class = None
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -37,8 +39,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
     paginations_class = CustomPagination
+    permission_classes = (AuthorOrReadOnly,)
     filterset_class = RecipeFilter
-    ordering_fields = ('-id',)
+    ordering = ('id',)
 
     def get_serializer_class(self):
         if self.request.method in ['POST', 'PATCH', 'DELETE']:
@@ -69,7 +72,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         methods=['POST', 'DELETE'],
         url_path='favorite',
         url_name='favorite',
-        permission_classes=[IsAuthenticated]
+        permission_classes=(IsAuthenticated,)
     )
     def favorite(self, request, pk):
         errors = 'У вас нет данного рецепта в избранном'
@@ -80,7 +83,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         methods=['POST', 'DELETE'],
         url_path='shopping_cart',
         url_name='shopping_cart',
-        permission_classes=[IsAuthenticated]
+        permission_classes=(IsAuthenticated,)
     )
     def shopping_cart(self, request, pk):
         errors = 'У вас нет данного рецепта в списке покупок'
@@ -89,6 +92,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 class FavoriteViewSet(viewsets.ModelViewSet):
     serializer_class = FavoriteSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         recipe_id = self.kwargs.get('recipe_id')

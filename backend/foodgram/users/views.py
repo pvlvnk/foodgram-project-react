@@ -1,3 +1,4 @@
+from api.paginations import CustomPagination
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import status
@@ -11,7 +12,7 @@ from users.serializers import FollowSerializer, ResponeSubscribeSerializer
 
 
 class CustomUserViewSet(UserViewSet):
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPagination
 
     @action(
         detail=True,
