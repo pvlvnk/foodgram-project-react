@@ -4,9 +4,15 @@ from api.permissions import AuthorOrReadOnly
 from api.serializers import (CartSerializer, FavoriteSerializer,
                              IngredientSerializer, ReadRecipeSerializer,
                              TagSerializer, WriteRecipeSerializer)
+from django.db.models import Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from recipes.models import Cart, Favorite, Ingredient, Recipe, Tag
+from recipes.models import (Cart, Favorite, Ingredient, IngredientRecipe,
+                            Recipe, Tag)
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -66,6 +72,36 @@ class RecipeViewSet(viewsets.ModelViewSet):
         object.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @staticmethod
+    def canvas_method(dictionary):
+        begin_position_x, begin_position_y = 30, 730
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = (
+            'attachment; filename="shopping_cart.pdf"')
+        pdf_file = canvas.Canvas(response)
+        pdfmetrics.registerFont(TTFont('TNR', 'times.ttf'))
+        pdf_file.setFont('TNR', 25)
+        pdf_file.setTitle('Список покупок')
+        pdf_file.drawString(
+            begin_position_x, begin_position_y + 40, 'Список покупок: ')
+        pdf_file.setFont('TNR', 18)
+        for number, item in enumerate(dictionary, start=1):
+            if begin_position_y < 100:
+                begin_position_y = 730
+                pdf_file.showPage()
+                pdf_file.setFont('TNR', 18)
+            pdf_file.drawString(
+                begin_position_x,
+                begin_position_y,
+                f'{number}: {item["ingredient__name"]} - '
+                f'{item["ingredient_total"]}'
+                f'{item["ingredient__measurement_unit"]}'
+            )
+            begin_position_y -= 30
+        pdf_file.showPage()
+        pdf_file.save()
+        return response
+
     @action(
         detail=True,
         methods=['POST', 'DELETE'],
@@ -87,6 +123,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def shopping_cart(self, request, pk):
         errors = 'У вас нет данного рецепта в списке покупок'
         return self.add_or_del_object(Cart, pk, CartSerializer, errors)
+
+    @action(
+        detail=False,
+        url_path='download_shopping_cart',
+        url_name='download_shopping_cart',
+        permission_classes=(IsAuthenticated,)
+    )
+    def download_shopping_cart(self, request):
+        ingredients = IngredientRecipe.objects.filter(
+            recipe__carts__user=request.user
+        ).values(
+            'ingredient__name', 'ingredient__measurement_unit'
+        ).order_by(
+            'ingredient__name'
+        ).annotate(ingredient_total=Sum('amount'))
+        return self.canvas_method(ingredients)
 
 
 class FavoriteViewSet(viewsets.ModelViewSet):

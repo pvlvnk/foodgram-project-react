@@ -1,4 +1,5 @@
 from colorfield.fields import ColorField
+from django.core.validators import MinValueValidator
 from django.db import models
 from users.models import User
 
@@ -90,6 +91,8 @@ class Recipe(models.Model):
     cooking_time = models.SmallIntegerField(
         verbose_name='Время приготовления',
         help_text='Укажите время приготовления',
+        validators=[MinValueValidator(
+            1, message='Время приготовления должно быть больше 0')]
     )
 
     class Meta:
@@ -106,6 +109,8 @@ class IngredientRecipe(models.Model):
     amount = models.PositiveIntegerField(
         verbose_name='Количество',
         help_text='Укажите количество',
+        validators=[MinValueValidator(
+            1, message='Количество ингредиентов должно быть больше 0')]
     )
 
     def __str__(self) -> str:
