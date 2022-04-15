@@ -98,11 +98,8 @@ class WriteRecipeSerializer(ModelSerializer):
 
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredientrecipe_set')
-        print(ingredients)
-        print(type(ingredients))
         IngredientRecipe.objects.filter(recipe=instance).delete()
         tags = validated_data.pop('tags')
-        print(tags)
         instance.tags.clear()
         instance.tags.set(tags)
         instance.image = validated_data.get('image', instance.image)
@@ -117,12 +114,28 @@ class WriteRecipeSerializer(ModelSerializer):
             IngredientRecipe.objects.create(
                 recipe=instance, ingredient=base_ingredient, amount=amount
             )
-            # instance.ingredients.set(ingredient.get('ingredient').get('id'))
         instance.save()
         return instance
 
 
 class FavoriteSerializer(ModelSerializer):
+    user = UserSerializer
+    recipe = ReadRecipeSerializer
+
     class Meta:
         model = Favorite
-        fields = ('id',)
+        fields = ('user', 'recipe')
+
+    def validate(self, data):
+        user = data.get('user')
+        recipe = data.get('recipe')
+        if Favorite.objects.filter(user=user, recipe=recipe).exists():
+            raise serializers.ValidationError(
+                {'errors': 'Данный рецепт уже есть в избраном'}
+            )
+        return data
+
+    def create(self, validated_data):
+        user = validated_data.get('user')
+        recipe = validated_data.get('recipe')
+        return Favorite.objects.create(user=user, recipe=recipe)

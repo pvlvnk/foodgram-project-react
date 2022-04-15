@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
-                            Tag, TagRecipe)
+from recipes.models import (Cart, Favorite, Ingredient, IngredientRecipe,
+                            Recipe, Tag, TagRecipe)
 
 
 class TagRecipeInline(admin.TabularInline):
@@ -42,7 +42,14 @@ class FavoriteAdmin(admin.ModelAdmin):
     empty_value_display = '-empty-'
 
 
+class CartAdmin(admin.ModelAdmin):
+    list_display = ('recipe', 'user',)
+    list_filter = ('recipe', 'user',)
+    empty_value_display = '-empty-'
+
+
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Favorite, FavoriteAdmin)
+admin.site.register(Cart, CartAdmin)

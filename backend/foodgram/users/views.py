@@ -32,7 +32,12 @@ class CustomUserViewSet(UserViewSet):
             serializer = ResponeSubscribeSerializer(
                 author, context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        follow = get_object_or_404(Follow, user=user, author=author)
+        follow = Follow.objects.filter(user=user, author=author)
+        if not follow.exists():
+            return Response(
+                {'errors': 'У вас нет данного пользователя в подписках'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         follow.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -53,13 +58,3 @@ class CustomUserViewSet(UserViewSet):
             context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
-
-# class FollowViewSet(viewsets.ModelViewSet):
-#     serializer_class = FollowSerializer
-
-#     def get_queryset(self):
-#         user = get_object_or_404(User, username=self.request.user.username)
-#         return user.follower.all()
-
-#     def perform_create(self, serializer):
-#         serializer.save(user=self.request.user)

@@ -40,6 +40,7 @@ class FollowSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {'errors': 'Вы уже подписаны на данного пользователя'}
             )
+        return data
 
     def create(self, validated_data):
         author = validated_data.get('author')
@@ -47,7 +48,7 @@ class FollowSerializer(serializers.ModelSerializer):
         return Follow.objects.create(user=user, author=author)
 
 
-class RecipesForSubscribeSerializer(serializers.ModelSerializer):
+class RecipesBriefSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
@@ -75,7 +76,7 @@ class ResponeSubscribeSerializer(serializers.ModelSerializer):
         queryset = Recipe.objects.filter(author=obj)
         if recipes_limit:
             queryset = queryset[:(recipes_limit)]
-        return RecipesForSubscribeSerializer(queryset, many=True).data
+        return RecipesBriefSerializer(queryset, many=True).data
 
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author=obj).count()
