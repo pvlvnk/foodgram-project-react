@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import Favorite, Ingredient, IngredientRecipe, Recipe, Tag
+from recipes.models import (Cart, Favorite, Ingredient, IngredientRecipe,
+                            Recipe, Tag)
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from users.serializers import UserSerializer
@@ -139,3 +140,26 @@ class FavoriteSerializer(ModelSerializer):
         user = validated_data.get('user')
         recipe = validated_data.get('recipe')
         return Favorite.objects.create(user=user, recipe=recipe)
+
+
+class CartSerializer(ModelSerializer):
+    user = UserSerializer
+    recipe = ReadRecipeSerializer
+
+    class Meta:
+        model = Cart
+        fields = ('user', 'recipe')
+
+    def validate(self, data):
+        user = data.get('user')
+        recipe = data.get('recipe')
+        if Cart.objects.filter(user=user, recipe=recipe).exists():
+            raise serializers.ValidationError(
+                {'errors': 'Рецепт уже добавлен в список покупок'}
+            )
+        return data
+
+    def create(self, validated_data):
+        user = validated_data.get('user')
+        recipe = validated_data.get('recipe')
+        return Cart.objects.create(user=user, recipe=recipe)
