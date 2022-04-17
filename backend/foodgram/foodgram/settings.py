@@ -4,12 +4,13 @@ import sys
 
 from dotenv import load_dotenv
 
-load_dotenv('infra/')
+load_dotenv()
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv("SECRET_KEY", 'django-insecure-)nh6plgikxci3fa3c#nz-25=i99tr(wpfs6ck9=&lf5wuxg0so')
+# SECRET_KEY = os.getenv("SECRET_KEY", 'django-insecure-)nh6plgikxci3fa3c#nz-25=i99tr(wpfs6ck9=&lf5wuxg0so')
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
 
