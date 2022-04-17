@@ -1,13 +1,8 @@
-from api.filters import RecipeFilter
-from api.paginations import CustomPagination
-from api.permissions import AuthorOrReadOnly
-from api.serializers import (CartSerializer, FavoriteSerializer,
-                             IngredientSerializer, ReadRecipeSerializer,
-                             TagSerializer, WriteRecipeSerializer)
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from foodgram.settings import NAME_SHOPPING_CART_PDF
 from recipes.models import (Cart, Favorite, Ingredient, IngredientRecipe,
                             Recipe, Tag)
 from reportlab.pdfbase import pdfmetrics
@@ -18,6 +13,15 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from users.serializers import RecipesBriefSerializer
+
+from api.filters import RecipeFilter
+from api.paginations import CustomPagination
+from api.permissions import AuthorOrReadOnly
+from api.serializers import (CartSerializer, FavoriteSerializer,
+                             IngredientSerializer, ReadRecipeSerializer,
+                             TagSerializer, WriteRecipeSerializer)
+
+CONTENT_TYPE = 'application/pdf'
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -42,14 +46,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     """
     queryset = Recipe.objects.all()
-    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
+    filter_backends = (DjangoFilterBackend,)
     paginations_class = CustomPagination
     permission_classes = (AuthorOrReadOnly,)
     filterset_class = RecipeFilter
-    ordering = ('id',)
 
     def get_serializer_class(self):
-        if self.request.method in ['POST', 'PATCH', 'DELETE']:
+        if self.request.method in ('POST', 'PATCH', 'DELETE'):
             return WriteRecipeSerializer
         return ReadRecipeSerializer
 
@@ -73,12 +76,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @staticmethod
-    def canvas_method(dictionary):
+    def creating_pdf(dictionary, pdf_file):
         begin_position_x, begin_position_y = 30, 730
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = (
-            'attachment; filename="shopping_cart.pdf"')
-        pdf_file = canvas.Canvas(response)
         pdfmetrics.registerFont(TTFont('TNR', 'times.ttf'))
         pdf_file.setFont('TNR', 25)
         pdf_file.setTitle('Список покупок')
@@ -99,12 +98,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             )
             begin_position_y -= 30
         pdf_file.showPage()
-        pdf_file.save()
-        return response
+        return pdf_file.save()
 
     @action(
         detail=True,
-        methods=['POST', 'DELETE'],
+        methods=('POST', 'DELETE'),
         url_path='favorite',
         url_name='favorite',
         permission_classes=(IsAuthenticated,)
@@ -115,7 +113,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        methods=['POST', 'DELETE'],
+        methods=('POST', 'DELETE'),
         url_path='shopping_cart',
         url_name='shopping_cart',
         permission_classes=(IsAuthenticated,)
@@ -138,7 +136,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).order_by(
             'ingredient__name'
         ).annotate(ingredient_total=Sum('amount'))
-        return self.canvas_method(ingredients)
+
+        response = HttpResponse(content_type=CONTENT_TYPE)
+        response['Content-Disposition'] = (
+            f'attachment; filename={NAME_SHOPPING_CART_PDF}')
+        pdf_file = canvas.Canvas(response)
+        self.creating_pdf(ingredients, pdf_file)
+        return response
 
 
 class FavoriteViewSet(viewsets.ModelViewSet):

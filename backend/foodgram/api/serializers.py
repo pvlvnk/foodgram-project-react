@@ -1,9 +1,12 @@
-from django.shortcuts import get_object_or_404
+from django.core.validators import MinValueValidator
+from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
+from foodgram.settings import MIN_COOKING_TIME, MIN_INGREDIENT_AMOUNT
 from recipes.models import (Cart, Favorite, Ingredient, IngredientRecipe,
                             Recipe, Tag)
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
+from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from users.serializers import UserSerializer
 
 
@@ -25,7 +28,12 @@ class IngredientRecipeSerializer(ModelSerializer):
 
 
 class WriteIngredientRecipeSerializer(ModelSerializer):
-    id = serializers.IntegerField(source='ingredient.id')
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all()
+    )
+    amount = serializers.IntegerField(
+        validators=(MinValueValidator(MIN_INGREDIENT_AMOUNT),),
+    )
 
     class Meta:
         model = IngredientRecipe
@@ -33,6 +41,15 @@ class WriteIngredientRecipeSerializer(ModelSerializer):
 
 
 class TagSerializer(ModelSerializer):
+    name = serializers.CharField(
+        max_length=100,
+        validators=(UniqueValidator(Tag.objects.all()),)
+    )
+    slug = serializers.SlugField(
+        max_length=50,
+        validators=(UniqueValidator(Tag.objects.all()),)
+    )
+
     class Meta:
         model = Tag
         fields = ('id', 'name', 'color', 'slug',)
@@ -43,12 +60,14 @@ class ReadRecipeSerializer(ModelSerializer):
     author = UserSerializer(read_only=True)
     ingredients = IngredientRecipeSerializer(
         many=True,
-        source='ingredientrecipe_set',
+        source='ingredientrecipes',
         read_only=True
     )
     image = Base64ImageField()
-    is_favorited = serializers.SerializerMethodField()
-    is_in_shopping_cart = serializers.SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField(
+        method_name='get_is_favorited')
+    is_in_shopping_cart = serializers.SerializerMethodField(
+        method_name='get_is_in_shopping_cart')
 
     class Meta:
         model = Recipe
@@ -56,13 +75,13 @@ class ReadRecipeSerializer(ModelSerializer):
                   'is_in_shopping_cart', 'name', 'image',
                   'text', 'cooking_time',)
 
-    def get_is_favorited(self, obj):
+    def get_is_favorited(self, obj) -> Favorite:
         request = self.context.get('request')
         if request is None or request.user.is_anonymous:
             return False
         return Favorite.objects.filter(user=request.user, recipe=obj).exists()
 
-    def get_is_in_shopping_cart(self, obj):
+    def get_is_in_shopping_cart(self, obj) -> Favorite:
         request = self.context.get('request')
         if request is None or request.user.is_anonymous:
             return False
@@ -72,33 +91,37 @@ class ReadRecipeSerializer(ModelSerializer):
 class WriteRecipeSerializer(ModelSerializer):
     ingredients = WriteIngredientRecipeSerializer(
         many=True,
-        source='ingredientrecipe_set',
+        source='ingredientrecipes',
     )
     tags = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Tag.objects.all())
     image = Base64ImageField()
+    cooking_time = serializers.IntegerField(
+        validators=(MinValueValidator(MIN_COOKING_TIME),)
+    )
 
     class Meta:
         model = Recipe
-        fields = ('id', 'ingredients', 'tags', 'image', 'name', 'text',
+        fields = ('ingredients', 'tags', 'image', 'name', 'text',
                   'cooking_time')
 
+    @transaction.atomic
     def create(self, validated_data):
         request = self.context.get('request')
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredientrecipe_set')
+        ingredients = validated_data.pop('ingredientrecipes')
         recipe = Recipe.objects.create(author=request.user, **validated_data)
         recipe.tags.set(tags)
         for ingredient in ingredients:
             amount = ingredient.get('amount')
-            base_ingredient = get_object_or_404(
-                Ingredient, pk=ingredient.get('ingredient').get('id'))
+            base_ingredient = ingredient.get('id')
             IngredientRecipe.objects.create(
                 recipe=recipe, ingredient=base_ingredient, amount=amount)
         return recipe
 
+    @transaction.atomic
     def update(self, instance, validated_data):
-        ingredients = validated_data.pop('ingredientrecipe_set')
+        ingredients = validated_data.pop('ingredientrecipes')
         IngredientRecipe.objects.filter(recipe=instance).delete()
         tags = validated_data.pop('tags')
         instance.tags.clear()
@@ -110,8 +133,7 @@ class WriteRecipeSerializer(ModelSerializer):
             'cooking_time', instance.cooking_time)
         for ingredient in ingredients:
             amount = ingredient.get('amount')
-            base_ingredient = get_object_or_404(
-                Ingredient, pk=ingredient.get('ingredient').get('id'))
+            base_ingredient = ingredient.get('id')
             IngredientRecipe.objects.create(
                 recipe=instance, ingredient=base_ingredient, amount=amount
             )
@@ -126,6 +148,13 @@ class FavoriteSerializer(ModelSerializer):
     class Meta:
         model = Favorite
         fields = ('user', 'recipe')
+        validators = (
+            UniqueTogetherValidator(
+                queryset=Favorite.objects.all(),
+                fields=('user', 'recipe'),
+                message='Данный рецепт уже есть в избраном'
+            ),
+        )
 
     def validate(self, data):
         user = data.get('user')
@@ -149,15 +178,13 @@ class CartSerializer(ModelSerializer):
     class Meta:
         model = Cart
         fields = ('user', 'recipe')
-
-    def validate(self, data):
-        user = data.get('user')
-        recipe = data.get('recipe')
-        if Cart.objects.filter(user=user, recipe=recipe).exists():
-            raise serializers.ValidationError(
-                {'errors': 'Рецепт уже добавлен в список покупок'}
-            )
-        return data
+        validators = (
+            UniqueTogetherValidator(
+                queryset=Cart.objects.all(),
+                fields=('user', 'recipe'),
+                message='Рецепт уже добавлен в список покупок'
+                ),
+        )
 
     def create(self, validated_data):
         user = validated_data.get('user')

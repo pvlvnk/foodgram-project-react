@@ -14,7 +14,7 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=True,
-        methods=['POST', 'DELETE'],
+        methods=('POST', 'DELETE'),
         url_path='subscribe',
         url_name='subscribe',
         permission_classes=(IsAuthenticated,),
@@ -42,7 +42,7 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=False,
-        methods=['GET'],
+        methods=('GET',),
         url_path='subscriptions',
         url_name='subscriptions',
         permission_classes=(IsAuthenticated,),
