@@ -1,20 +1,16 @@
 import os
 from pathlib import Path
-import sys
 
-from dotenv import load_dotenv
+from dotenv import find_dotenv, load_dotenv
 
-load_dotenv()
+load_dotenv(find_dotenv())
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECRET_KEY = os.getenv("SECRET_KEY", 'django-insecure-)nh6plgikxci3fa3c#nz-25=i99tr(wpfs6ck9=&lf5wuxg0so')
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
-
-DEBUG = os.getenv("DEBUG", "True") == "True" and not TESTING
+DEBUG = os.getenv("DEBUG")
 
 ALLOWED_HOSTS = ['*']
 
@@ -28,14 +24,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 3rd party
     'colorfield',
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
     'django_filters',
+    # apps
     'users.apps.UsersConfig',
     'api.apps.ApiConfig',
     'recipes.apps.RecipesConfig',
+
 
 ]
 
@@ -74,7 +73,7 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
+        'ENGINE': os.getenv('DB_ENGINE'),
         'NAME': os.getenv('DB_NAME', default='postgres'),
         'USER': os.getenv('POSTGRES_USER', default='postgres'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='230398Rg'),
@@ -128,7 +127,7 @@ AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-       'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',

@@ -183,7 +183,7 @@ class CartSerializer(ModelSerializer):
                 queryset=Cart.objects.all(),
                 fields=('user', 'recipe'),
                 message='Рецепт уже добавлен в список покупок'
-                ),
+            ),
         )
 
     def create(self, validated_data):
