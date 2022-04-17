@@ -9,7 +9,7 @@ services:
       - ./.env
 
   backend:
-    image: pvlvnk/foodgram_backend:latest
+    image: pvlvnk/foodgram_backend:v1
     restart: always
     volumes:
       - static_value:/app/static/
@@ -20,10 +20,10 @@ services:
       - ./.env
 
   frontend:
-    image: pvlvnk/foodgram_frontend:latest
+    image: pvlvnk/foodgram_frontend:v1
     restart: always
     volumes:
-      - frontend_data:../frontend/:/app/result_build/
+      - ../frontend/:/app/result_build/
   
   nginx:
     image: nginx:1.19.3
@@ -44,5 +44,4 @@ volumes:
   static_value:
   media_value:
   db_data:
-  frontend_data:
   
