@@ -5,10 +5,10 @@ from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 
-from ..foodgram.settings import MIN_COOKING_TIME, MIN_INGREDIENT_AMOUNT
-from ..recipes.models import (Cart, Favorite, Ingredient, IngredientRecipe,
-                              Recipe, Tag)
-from ..users.serializers import UserSerializer
+from foodgram.settings import MIN_COOKING_TIME, MIN_INGREDIENT_AMOUNT
+from recipes.models import (Cart, Favorite, Ingredient, IngredientRecipe,
+                            Recipe, Tag)
+from users.serializers import UserSerializer
 
 
 class IngredientSerializer(ModelSerializer):
