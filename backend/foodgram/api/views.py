@@ -1,16 +1,7 @@
-from api.filters import RecipeFilter
-from api.paginations import CustomPagination
-from api.permissions import AuthorOrReadOnly
-from api.serializers import (CartSerializer, FavoriteSerializer,
-                             IngredientSerializer, ReadRecipeSerializer,
-                             TagSerializer, WriteRecipeSerializer)
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from foodgram.settings import NAME_SHOPPING_CART_PDF
-from recipes.models import (Cart, Favorite, Ingredient, IngredientRecipe,
-                            Recipe, Tag)
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
@@ -18,7 +9,17 @@ from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from users.serializers import RecipesBriefSerializer
+
+from ..foodgram.settings import NAME_SHOPPING_CART_PDF
+from ..recipes.models import (Cart, Favorite, Ingredient, IngredientRecipe,
+                              Recipe, Tag)
+from ..users.serializers import RecipesBriefSerializer
+from .filters import RecipeFilter
+from .paginations import CustomPagination
+from .permissions import AuthorOrReadOnly
+from .serializers import (CartSerializer, FavoriteSerializer,
+                          IngredientSerializer, ReadRecipeSerializer,
+                          TagSerializer, WriteRecipeSerializer)
 
 CONTENT_TYPE = 'application/pdf'
 

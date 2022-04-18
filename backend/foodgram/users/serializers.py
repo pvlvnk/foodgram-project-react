@@ -1,8 +1,9 @@
-from recipes.models import Recipe
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from rest_framework.validators import UniqueTogetherValidator
-from users.models import Follow, User
+
+from ..recipes.models import Recipe
+from .models import Follow, User
 
 
 class UserSerializer(ModelSerializer):

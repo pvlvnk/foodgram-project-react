@@ -1,3 +1,5 @@
+[![foodgram-app workflow](https://github.com/pvlvnk/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)](https://github.com/pvlvnk/foodgram-project-react/actions/workflows/foodgram_workflow.yml)
+
 # Проект Foodgram
 
 Foodgram - социальная сеть для публикации рецептов. Сайт выполнен на основе django rest framework и react.
