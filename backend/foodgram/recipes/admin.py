@@ -41,13 +41,13 @@ class RecipeAdmin(admin.ModelAdmin):
 
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = ('recipe', 'user',)
-    search_filter = ('user__username', 'user__email')
+    search_fields = ('user__username', 'user__email')
     empty_value_display = '-empty-'
 
 
 class CartAdmin(admin.ModelAdmin):
     list_display = ('recipe', 'user',)
-    search_filter = ('user__username', 'user__email')
+    search_fields = ('user__username', 'user__email')
     empty_value_display = '-empty-'
 
 
