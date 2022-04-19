@@ -1,4 +1,4 @@
-[![foodgram-app workflow](https://github.com/pvlvnk/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)](https://github.com/pvlvnk/foodgram-project-react/actions/workflows/foodgram_workflow.yml)
+![foodgram-app workflow](https://github.com/pvlvnk/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
 
 # Проект Foodgram
 
@@ -85,4 +85,11 @@ sudo docker-compose up -d --build
     ```
     sudo docker-compose exec backend python manage.py createsuperuser
     ```
+    - При необходимости загрузите ингредиенты в базу данных
+    ```
+    sudo docker-compose exec backend python manage.py load_data
+    ```
     - Проект будет доступен по вашему IP
+
+##
+Проект доступен по [адресу](http://51.250.71.255)
