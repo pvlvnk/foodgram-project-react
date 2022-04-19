@@ -74,7 +74,7 @@ class Recipe(models.Model):
         help_text='Добавьте изображение'
     )
     text = models.CharField(
-        max_length=1024,
+        max_length=6144,
         verbose_name='Текст',
         help_text='Введите текст',
     )
