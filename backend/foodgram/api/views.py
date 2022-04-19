@@ -5,7 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
-from rest_framework import filters, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -14,7 +14,7 @@ from foodgram.settings import NAME_SHOPPING_CART_PDF
 from recipes.models import (Cart, Favorite, Ingredient, IngredientRecipe,
                             Recipe, Tag)
 from users.serializers import RecipesBriefSerializer
-from api.filters import RecipeFilter
+from api.filters import IngredientSearchFilter, RecipeFilter
 from api.paginations import CustomPagination
 from api.permissions import AuthorOrReadOnly
 from api.serializers import (CartSerializer, FavoriteSerializer,
@@ -28,7 +28,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     """Возвращает список всех ингредиентов или конкретный ингредиент."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
+    filter_backends = (DjangoFilterBackend, IngredientSearchFilter,)
     search_fields = ('^name',)
     pagination_class = None
 

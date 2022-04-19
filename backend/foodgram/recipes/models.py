@@ -19,7 +19,7 @@ class Ingredient(models.Model):
     )
 
     class Meta:
-        ordering = ('-id',)
+        ordering = ('id',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
 
@@ -70,7 +70,6 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         upload_to='recipes/',
-        blank=True,
         verbose_name='Изображение',
         help_text='Добавьте изображение'
     )
@@ -100,8 +99,8 @@ class Recipe(models.Model):
         validators=(
             MinValueValidator(
                 MIN_COOKING_TIME,
-                message=('Время приготовления не может быть'
-                         'меньше {MIN_COOKING_TIME} минуты')
+                message=(f'Время приготовления не может быть '
+                         f'меньше {MIN_COOKING_TIME} минуты')
             ),
         )
     )
@@ -136,8 +135,8 @@ class IngredientRecipe(models.Model):
         validators=(
             MinValueValidator(
                 MIN_INGREDIENT_AMOUNT,
-                message=('Количество ингредиентов не может быть'
-                         'меньше {MIN_INGREDIENT_AMOUNT}')
+                message=(f'Количество ингредиентов не может быть '
+                         f'меньше {MIN_INGREDIENT_AMOUNT}')
             ),
         )
     )
@@ -146,6 +145,12 @@ class IngredientRecipe(models.Model):
         ordering = ('-id',)
         verbose_name = 'Количество ингредиента'
         verbose_name_plural = 'Количества ингредиента'
+        constraints = (
+            models.UniqueConstraint(
+                fields=('ingredient', 'recipe',),
+                name='unique_ingredients_recipe'
+            ),
+        )
 
     def __str__(self) -> str:
         return f'{self.ingredient} для {self.recipe}'

@@ -18,6 +18,7 @@ class IngredientRecipeInline(admin.TabularInline):
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement_unit',)
     search_fields = ('name',)
+    list_filter = ('measurement_unit',)
     empty_value_display = '-empty-'
     inlines = (IngredientRecipeInline,)
 
@@ -32,7 +33,7 @@ class TagAdmin(admin.ModelAdmin):
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('pk', 'author', 'name',)
     list_filter = ('tags',)
-    search_fields = ('author__username',)
+    search_fields = ('name', 'author__username', 'author__email')
     empty_value_display = '-empty-'
     filter_vertical = ('tags',)
     inlines = (TagRecipeInline, IngredientRecipeInline,)
@@ -40,13 +41,13 @@ class RecipeAdmin(admin.ModelAdmin):
 
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = ('recipe', 'user',)
-    search_filter = ('user__username',)
+    search_filter = ('user__username', 'user__email')
     empty_value_display = '-empty-'
 
 
 class CartAdmin(admin.ModelAdmin):
     list_display = ('recipe', 'user',)
-    search_filter = ('user__username',)
+    search_filter = ('user__username', 'user__email')
     empty_value_display = '-empty-'
 
 

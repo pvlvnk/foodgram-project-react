@@ -33,7 +33,13 @@ class WriteIngredientRecipeSerializer(ModelSerializer):
         queryset=Ingredient.objects.all()
     )
     amount = serializers.IntegerField(
-        validators=(MinValueValidator(MIN_INGREDIENT_AMOUNT),),
+        validators=(
+            MinValueValidator(
+                {MIN_INGREDIENT_AMOUNT},
+                message=(f'Количество ингредиента не может быть '
+                         f'меньше {MIN_COOKING_TIME}')
+            ),
+        )
     )
 
     class Meta:
@@ -98,7 +104,13 @@ class WriteRecipeSerializer(ModelSerializer):
         many=True, queryset=Tag.objects.all())
     image = Base64ImageField()
     cooking_time = serializers.IntegerField(
-        validators=(MinValueValidator(MIN_COOKING_TIME),)
+        validators=(
+            MinValueValidator(
+                MIN_COOKING_TIME,
+                message=(f'Время приготовления не может быть '
+                         f'меньше {MIN_COOKING_TIME} минуты')
+            ),
+        )
     )
 
     class Meta:
