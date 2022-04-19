@@ -9,7 +9,7 @@ services:
       - ./.env
 
   backend:
-    image: pvlvnk/foodgram_backend:v1
+    image: pvlvnk/foodgram_backend:latest
     restart: always
     volumes:
       - static_value:/app/static/
