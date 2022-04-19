@@ -37,6 +37,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     """Возвращает список всех тегов или конкретный тег."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    pagination_class = None
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
