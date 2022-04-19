@@ -35,9 +35,9 @@ class WriteIngredientRecipeSerializer(ModelSerializer):
     amount = serializers.IntegerField(
         validators=(
             MinValueValidator(
-                {MIN_INGREDIENT_AMOUNT},
+                limit_value=MIN_INGREDIENT_AMOUNT,
                 message=(f'Количество ингредиента не может быть '
-                         f'меньше {MIN_COOKING_TIME}')
+                         f'меньше {MIN_INGREDIENT_AMOUNT}')
             ),
         )
     )
@@ -106,7 +106,7 @@ class WriteRecipeSerializer(ModelSerializer):
     cooking_time = serializers.IntegerField(
         validators=(
             MinValueValidator(
-                MIN_COOKING_TIME,
+                limit_value=MIN_COOKING_TIME,
                 message=(f'Время приготовления не может быть '
                          f'меньше {MIN_COOKING_TIME} минуты')
             ),
