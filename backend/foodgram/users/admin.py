@@ -17,7 +17,6 @@ class FollowAdmin(admin.ModelAdmin):
         'author__email',
         'user__username',
         'user__email',
-
     )
     empty_value_display = '-empty-'
 
