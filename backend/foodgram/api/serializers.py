@@ -26,6 +26,13 @@ class IngredientRecipeSerializer(ModelSerializer):
     class Meta:
         model = IngredientRecipe
         fields = ('id', 'name', 'measurement_unit', 'amount',)
+        validators = (
+            UniqueTogetherValidator(
+                queryset=IngredientRecipe.objects.all(),
+                fields=('recipe', 'ingredient'),
+                message='Нельзя добавить 2 одинаковых ингредиента'
+            ),
+        )
 
 
 class WriteIngredientRecipeSerializer(ModelSerializer):
