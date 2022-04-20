@@ -52,6 +52,13 @@ class WriteIngredientRecipeSerializer(ModelSerializer):
     class Meta:
         model = IngredientRecipe
         fields = ('id', 'amount')
+        validators = (
+            UniqueTogetherValidator(
+                queryset=IngredientRecipe.objects.all(),
+                fields=('recipe', 'ingredient'),
+                message='Нельзя добавить 2 одинаковых ингредиента'
+            ),
+        )
 
 
 class TagSerializer(ModelSerializer):
