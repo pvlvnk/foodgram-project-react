@@ -26,13 +26,6 @@ class IngredientRecipeSerializer(ModelSerializer):
     class Meta:
         model = IngredientRecipe
         fields = ('id', 'name', 'measurement_unit', 'amount',)
-        validators = (
-            UniqueTogetherValidator(
-                queryset=IngredientRecipe.objects.all(),
-                fields=('recipe', 'ingredient'),
-                message='Нельзя добавить 2 одинаковых ингредиента'
-            ),
-        )
 
 
 class WriteIngredientRecipeSerializer(ModelSerializer):
@@ -52,13 +45,6 @@ class WriteIngredientRecipeSerializer(ModelSerializer):
     class Meta:
         model = IngredientRecipe
         fields = ('id', 'amount')
-        validators = (
-            UniqueTogetherValidator(
-                queryset=IngredientRecipe.objects.all(),
-                fields=('recipe', 'ingredient'),
-                message='Нельзя добавить 2 одинаковых ингредиента'
-            ),
-        )
 
 
 class TagSerializer(ModelSerializer):
@@ -142,6 +128,11 @@ class WriteRecipeSerializer(ModelSerializer):
         for ingredient in ingredients:
             amount = ingredient.get('amount')
             base_ingredient = ingredient.get('id')
+            if (IngredientRecipe.objects.filter(
+                    recipe=recipe, ingredient=base_ingredient).exists()):
+                raise serializers.ValidationError(
+                    {'errors': 'нельзя добавить два одинаковых ингредиента'}
+                )
             IngredientRecipe.objects.create(
                 recipe=recipe, ingredient=base_ingredient, amount=amount)
         return recipe
@@ -161,6 +152,11 @@ class WriteRecipeSerializer(ModelSerializer):
         for ingredient in ingredients:
             amount = ingredient.get('amount')
             base_ingredient = ingredient.get('id')
+            if (IngredientRecipe.objects.filter(
+                    recipe=instance, ingredient=base_ingredient).exists()):
+                raise serializers.ValidationError(
+                    {'errors': 'нельзя добавить два одинаковых ингредиента'}
+                )
             IngredientRecipe.objects.create(
                 recipe=instance, ingredient=base_ingredient, amount=amount
             )
